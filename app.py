@@ -55,4 +55,3 @@ if st.button("提交答案") and not st.session_state.show_answer:
 if st.session_state.show_answer:
     if st.button("下一題"):
         st.session_state.next_clicked = True
-        st.experimental_rerun()  # ← 這行其實可以拿掉也沒關係，但保留也不會炸
