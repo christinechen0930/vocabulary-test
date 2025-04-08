@@ -13,24 +13,37 @@ if "score" not in st.session_state:
 if "total" not in st.session_state:
     st.session_state.total = 0
 if "current_index" not in st.session_state:
-    remaining_indices = list(set(range(len(df))) - set(st.session_state.used_indices))
-    st.session_state.current_index = random.choice(remaining_indices)
-    st.session_state.used_indices.append(st.session_state.current_index)
+    st.session_state.current_index = None
 if "show_answer" not in st.session_state:
     st.session_state.show_answer = False
+if "next_clicked" not in st.session_state:
+    st.session_state.next_clicked = True  # 一開始就可以出題
 
-st.title("英文單字練習網站（看中文猜英文 + 計分）")
-st.markdown(f"**目前分數：{st.session_state.score} / {st.session_state.total}**")
+# 換下一題（不會用 rerun）
+if st.session_state.next_clicked:
+    remaining = list(set(range(len(df))) - set(st.session_state.used_indices))
+    if not remaining:
+        st.success("恭喜你完成所有單字的一輪測驗～分數會保留，進入下一輪 🥳")
+        st.session_state.used_indices = []
+        remaining = list(range(len(df)))
+    st.session_state.current_index = random.choice(remaining)
+    st.session_state.used_indices.append(st.session_state.current_index)
+    st.session_state.show_answer = False
+    st.session_state.next_clicked = False
 
+# 題目內容
 word = df.iloc[st.session_state.current_index]
 english_word = word['English']
 chinese_word = word['Chinese']
 hint = f"{english_word[0]}___{english_word[-1]}"
 
+st.title("英文單字練習網站（看中文猜英文 + 計分）")
+st.markdown(f"**目前分數：{st.session_state.score} / {st.session_state.total}**")
 st.subheader(f"中文：**{chinese_word}**（提示：{hint}）")
+
 answer = st.text_input("請輸入英文單字：")
 
-if st.button("提交答案"):
+if st.button("提交答案") and not st.session_state.show_answer:
     st.session_state.total += 1
     st.session_state.show_answer = True
     if answer.strip().lower() == english_word.strip().lower():
@@ -41,11 +54,5 @@ if st.button("提交答案"):
 
 if st.session_state.show_answer:
     if st.button("下一題"):
-        if len(st.session_state.used_indices) == len(df):
-            st.success("你已經練完所有單字一輪囉！分數會保留，準備下一輪～")
-            st.session_state.used_indices = []
-        remaining_indices = list(set(range(len(df))) - set(st.session_state.used_indices))
-        st.session_state.current_index = random.choice(remaining_indices)
-        st.session_state.used_indices.append(st.session_state.current_index)
-        st.session_state.show_answer = False
-        st.experimental_rerun()
+        st.session_state.next_clicked = True
+        st.experimental_rerun()  # ← 這行其實可以拿掉也沒關係，但保留也不會炸
