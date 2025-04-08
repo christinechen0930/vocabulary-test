@@ -37,7 +37,7 @@ english_word = word['English']
 chinese_word = word['Chinese']
 hint = f"{english_word[0]}___{english_word[-1]}"
 
-st.title("英文單字練習網站（看中文猜英文 + 計分）")
+st.title("英文單字練習網站")
 st.markdown(f"**目前分數：{st.session_state.score} / {st.session_state.total}**")
 st.subheader(f"中文：**{chinese_word}**（提示：{hint}）")
 
